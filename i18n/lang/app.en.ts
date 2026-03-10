@@ -1,35 +1,30 @@
 const translation = {
   common: {
-    welcome: 'Welcome to use',
-    appUnavailable: 'App is unavailable',
-    appUnkonwError: 'App is unavailable',
+    welcome: 'Vítejte v Sellinghub AI Dopisař',
+    appUnavailable: 'Asistent momentálně odpočívá',
+    appUnkonwError: 'Něco se pokazilo, zkuste to prosím znovu',
   },
   chat: {
-    newChat: 'New chat',
-    newChatDefaultName: 'New conversation',
-    openingStatementTitle: 'Opening statement',
-    powerBy: 'Powered by',
-    prompt: 'Prompt',
-    privatePromptConfigTitle: 'Conversation settings',
-    publicPromptConfigTitle: 'Initial Prompt',
-    configStatusDes: 'Before start, you can modify conversation settings',
-    configDisabled:
-      'Previous session settings have been used for this session.',
-    startChat: 'Start Chat',
-    privacyPolicyLeft:
-      'Please read the ',
-    privacyPolicyMiddle:
-      'privacy policy',
-    privacyPolicyRight:
-      ' provided by the app developer.',
+    newChat: 'Nový dopis',
+    newChatDefaultName: 'Nové psaní dopisu',
+    openingStatementTitle: 'Přivítání',
+    powerBy: 'Technologie',
+    prompt: 'Vaše zadání',
+    privatePromptConfigTitle: 'Parametry nemovitosti',
+    publicPromptConfigTitle: 'Úvodní nastavení',
+    configStatusDes: 'Než začneme, můžete doplnit detaily o nemovitosti',
+    configDisabled: 'Pro tento dopis již byly parametry nastaveny.',
+    startChat: 'Spustit AI Dopisaře',
+    privacyPolicyLeft: 'Přečtěte si prosím ',
+    privacyPolicyMiddle: 'zásady ochrany osobních údajů',
+    privacyPolicyRight: '.',
   },
   errorMessage: {
-    valueOfVarRequired: 'Variables value can not be empty',
-    waitForResponse:
-      'Please wait for the response to the previous message to complete.',
+    valueOfVarRequired: 'Tento údaj nemůže být prázdný',
+    waitForResponse: 'Počkejte prosím, než asistent dopíše předchozí zprávu.',
   },
   variableTable: {
-    optional: 'Optional',
+    optional: 'Volitelné',
   },
 }
 
