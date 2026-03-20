@@ -129,24 +129,38 @@ const Chat: FC<IChatProps> = ({
     }
   }
 
-  // --- NEW: COPY/PASTE & DRAG/DROP HIJACKERS ---
+  // --- THE DOM TRICK: COPY/PASTE & DRAG/DROP ---
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = e.clipboardData?.items
     if (!items) { return }
 
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.indexOf('image') !== -1) {
-        e.preventDefault() // Stop browser from just pasting text/filename
-        const file = items[i].getAsFile()
-        if (file && visionConfig?.enabled) {
-          // Check limits before uploading
-          if (files.length < (visionConfig.number_limits || 3)) {
-            onUpload(file)
+        e.preventDefault()
+        const rawFile = items[i].getAsFile()
+
+        if (rawFile && (visionConfig?.enabled || fileConfig?.enabled)) {
+          if (files.length < (visionConfig?.number_limits || 3)) {
+            // THE TRICK: Find Dify's native hidden file input
+            const fileInput = document.querySelector('.uploader-zone input[type="file"]') as HTMLInputElement
+
+            if (fileInput) {
+              // Create a fake file drop and shove the clipboard file inside it
+              const dataTransfer = new DataTransfer()
+              dataTransfer.items.add(rawFile)
+              fileInput.files = dataTransfer.files
+
+              // Tell React the "user" just selected a file
+              fileInput.dispatchEvent(new Event('change', { bubbles: true }))
+            } else {
+              // Fallback just in case the DOM hasn't rendered
+              onUpload(rawFile)
+            }
           } else {
             logError('Dosažen maximální počet obrázků.')
           }
         }
-        break // Only handle one image per paste to prevent spam
+        break
       }
     }
   }
@@ -157,9 +171,20 @@ const Chat: FC<IChatProps> = ({
     if (!droppedFiles) { return }
 
     if (droppedFiles.length > 0 && droppedFiles[0].type.indexOf('image') !== -1) {
-      if (visionConfig?.enabled) {
-        if (files.length < (visionConfig.number_limits || 3)) {
-          onUpload(droppedFiles[0])
+      if (visionConfig?.enabled || fileConfig?.enabled) {
+        const rawFile = droppedFiles[0]
+
+        if (files.length < (visionConfig?.number_limits || 3)) {
+          // THE TRICK FOR DRAG/DROP
+          const fileInput = document.querySelector('.uploader-zone input[type="file"]') as HTMLInputElement
+          if (fileInput) {
+            const dataTransfer = new DataTransfer()
+            dataTransfer.items.add(rawFile)
+            fileInput.files = dataTransfer.files
+            fileInput.dispatchEvent(new Event('change', { bubbles: true }))
+          } else {
+            onUpload(rawFile)
+          }
         } else {
           logError('Dosažen maximální počet obrázků.')
         }
