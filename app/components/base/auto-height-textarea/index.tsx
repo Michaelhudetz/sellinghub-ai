@@ -49,14 +49,15 @@ const AutoHeightTextarea = forwardRef(
     }, [controlFocus])
 
     return (
-      <div className='relative'>
-        <div className={cn(className, 'invisible whitespace-pre-wrap break-all  overflow-y-auto')} style={{ minHeight, maxHeight }}>
+      <div className='relative w-full'>
+        <div className={cn(className, 'invisible whitespace-pre-wrap break-all overflow-y-auto')} style={{ minHeight, maxHeight }}>
           {!value ? placeholder : value.replace(/\n$/, '\n ')}
         </div>
         <textarea
           ref={ref}
           autoFocus={autoFocus}
-          className={cn(className, 'absolute inset-0 resize-none overflow-hidden')}
+          /* Added bg-transparent, text-white, and removed default focus outlines */
+          className={cn(className, 'absolute inset-0 resize-none overflow-hidden bg-transparent text-white focus:outline-none focus:ring-0 placeholder-gray-600')}
           placeholder={placeholder}
           onChange={onChange}
           onKeyDown={onKeyDown}

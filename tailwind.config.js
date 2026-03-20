@@ -7,6 +7,10 @@ module.exports = {
   theme: {
     typography: require('./typography'),
     extend: {
+      // THIS is where we force the Inter font!
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+      },
       colors: {
         gray: {
           50: '#F9FAFB',
@@ -19,13 +23,20 @@ module.exports = {
           800: '#1F2A37',
           900: '#111928',
         },
+        // Replaced Dify Blue with Sellinghub Yellow
         primary: {
-          50: '#EBF5FF',
-          100: '#E1EFFE',
-          200: '#C3DDFD',
-          300: '#A4CAFE',
-          600: '#1C64F2',
-          700: '#1A56DB',
+          50: '#FFFBE6',
+          100: '#FFF5C2',
+          200: '#FFEA99',
+          300: '#FFDF70',
+          400: '#FFD60A',
+          500: '#FFD60A',
+          600: '#FFD60A', // Main buttons will now be Sellinghub Yellow!
+          700: '#E5C009', // Slightly darker for when you hover over a button
+        },
+        // Added Sellinghub Purple
+        secondary: {
+          500: '#9F89FF',
         },
         blue: {
           500: '#E1EFFE',
@@ -34,7 +45,6 @@ module.exports = {
           50: '#F3FAF7',
           100: '#DEF7EC',
           800: '#03543F',
-
         },
         yellow: {
           100: '#FDF6B2',
@@ -51,11 +61,8 @@ module.exports = {
       },
       screens: {
         mobile: '100px',
-        // => @media (min-width: 100px) { ... }
-        tablet: '640px', // 391
-        // => @media (min-width: 600px) { ... }
+        tablet: '640px',
         pc: '769px',
-        // => @media (min-width: 769px) { ... }
       },
     },
   },

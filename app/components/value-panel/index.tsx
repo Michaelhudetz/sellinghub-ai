@@ -3,9 +3,7 @@ import type { FC, ReactNode } from 'react'
 import React from 'react'
 import cn from 'classnames'
 import { useTranslation } from 'react-i18next'
-import s from './style.module.css'
-import { StarIcon } from '@/app/components//welcome/massive-component'
-import Button from '@/app/components/base/button'
+import { StarIcon } from '@/app/components/welcome/massive-component'
 
 export interface ITemplateVarPanelProps {
   className?: string
@@ -21,16 +19,17 @@ const TemplateVarPanel: FC<ITemplateVarPanelProps> = ({
   isFold,
 }) => {
   return (
-    <div className={cn(isFold ? 'border border-indigo-100' : s.boxShodow, className, 'rounded-xl ')}>
-      {/* header */}
+    <div className={cn(className, 'rounded-2xl border border-white/10 bg-[#1a1d24]/60 backdrop-blur-2xl shadow-lg transition-all duration-300 overflow-hidden mb-6')}>
+      {/* Header Area */}
       <div
-        className={cn(isFold && 'rounded-b-xl', 'rounded-t-xl px-6 py-4 bg-indigo-25 text-xs')}
+        className={cn('px-6 py-4 flex flex-col justify-center', !isFold && 'border-b border-white/5 bg-white/5')}
       >
         {header}
       </div>
-      {/* body */}
+
+      {/* Body Area (Expanded Form) */}
       {!isFold && children && (
-        <div className='rounded-b-xl p-6'>
+        <div className='p-6'>
           {children}
         </div>
       )}
@@ -43,9 +42,9 @@ export const PanelTitle: FC<{ title: string, className?: string }> = ({
   className,
 }) => {
   return (
-    <div className={cn(className, 'flex items-center space-x-1 text-indigo-600')}>
+    <div className={cn(className, 'flex items-center space-x-2 text-[#FFD60A]')}>
       <StarIcon />
-      <span className='text-xs'>{title}</span>
+      <span className='text-sm font-medium text-gray-200 tracking-wide'>{title}</span>
     </div>
   )
 }
@@ -58,20 +57,22 @@ export const VarOpBtnGroup: FC<{ className?: string, onConfirm: () => void, onCa
   const { t } = useTranslation()
 
   return (
-    <div className={cn(className, 'flex mt-3 space-x-2 mobile:ml-0 tablet:ml-[128px] text-sm')}>
-      <Button
-        className='text-sm'
-        type='primary'
-        onClick={onConfirm}
-      >
-        {t('common.operation.save')}
-      </Button>
-      <Button
-        className='text-sm'
+    <div className={cn(className, 'flex mt-8 space-x-3 w-full justify-end')}>
+      {/* Custom Sleek Cancel Button */}
+      <button
         onClick={onCancel}
+        className='text-sm font-medium text-gray-400 hover:text-white bg-transparent hover:bg-white/5 border border-white/10 py-2.5 px-5 rounded-xl transition-all'
       >
         {t('common.operation.cancel')}
-      </Button>
+      </button>
+
+      {/* Custom Glowing Save Button */}
+      <button
+        onClick={onConfirm}
+        className='text-sm font-medium text-black bg-[#FFD60A] hover:bg-[#e5c009] shadow-[0_0_15px_rgba(255,214,10,0.15)] hover:shadow-[0_0_20px_rgba(255,214,10,0.3)] py-2.5 px-6 rounded-xl transition-all transform hover:scale-105'
+      >
+        {t('common.operation.save')}
+      </button>
     </div >
   )
 }

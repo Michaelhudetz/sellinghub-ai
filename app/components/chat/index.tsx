@@ -4,7 +4,6 @@ import React, { useEffect, useRef } from 'react'
 import cn from 'classnames'
 import { useTranslation } from 'react-i18next'
 import Textarea from 'rc-textarea'
-import s from './style.module.css'
 import Answer from './answer'
 import Question from './question'
 import type { FeedbackFunc } from './type'
@@ -21,13 +20,7 @@ import { getProcessedFiles } from '@/app/components/base/file-uploader-in-attach
 
 export interface IChatProps {
   chatList: ChatItem[]
-  /**
-   * Whether to display the editing area and rating status
-   */
   feedbackDisabled?: boolean
-  /**
-   * Whether to display the input area
-   */
   isHideSendInput?: boolean
   onFeedback?: FeedbackFunc
   checkCanSend?: () => boolean
@@ -107,6 +100,8 @@ const Chat: FC<IChatProps> = ({
     const docAndOtherFiles: VisionFile[] = getProcessedFiles(attachmentFiles)
     const combinedFiles: VisionFile[] = [...imageFiles, ...docAndOtherFiles]
     onSend(queryRef.current, combinedFiles)
+
+    // Original stable clearing logic
     if (!files.find(item => item.type === TransferMethod.local_file && !item.fileId)) {
       if (files.length) { onClear() }
       if (!isResponding) {
@@ -120,7 +115,6 @@ const Chat: FC<IChatProps> = ({
   const handleKeyUp = (e: any) => {
     if (e.code === 'Enter') {
       e.preventDefault()
-      // prevent send message when using input method enter
       if (!e.shiftKey && !isUseInputMethod.current) { handleSend() }
     }
   }
@@ -142,7 +136,7 @@ const Chat: FC<IChatProps> = ({
   }
 
   return (
-    <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full')}>
+    <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full pb-32')}>
       {/* Chat List */}
       <div className="h-full space-y-[30px]">
         {chatList.map((item) => {
@@ -168,69 +162,75 @@ const Chat: FC<IChatProps> = ({
           )
         })}
       </div>
+
+      {/* --- PREMIUM GEMINI-STYLE CANVAS --- */}
       {
         !isHideSendInput && (
-          <div className='fixed z-10 bottom-0 left-1/2 transform -translate-x-1/2 pc:ml-[122px] tablet:ml-[96px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-3.5'>
-            <div className='p-[5.5px] max-h-[150px] bg-white border-[1.5px] border-gray-200 rounded-xl overflow-y-auto'>
-              {
-                visionConfig?.enabled && (
-                  <>
-                    <div className='absolute bottom-2 left-2 flex items-center'>
-                      <ChatImageUploader
-                        settings={visionConfig}
-                        onUpload={onUpload}
-                        disabled={files.length >= visionConfig.number_limits}
-                      />
-                      <div className='mx-1 w-[1px] h-4 bg-black/5' />
-                    </div>
-                    <div className='pl-[52px]'>
-                      <ImageList
-                        list={files}
-                        onRemove={onRemove}
-                        onReUpload={onReUpload}
-                        onImageLinkLoadSuccess={onImageLinkLoadSuccess}
-                        onImageLinkLoadError={onImageLinkLoadError}
-                      />
-                    </div>
-                  </>
-                )
-              }
-              {
-                fileConfig?.enabled && (
-                  <div className={`${visionConfig?.enabled ? 'pl-[52px]' : ''} mb-1`}>
-                    <FileUploaderInAttachmentWrapper
-                      fileConfig={fileConfig}
-                      value={attachmentFiles}
-                      onChange={setAttachmentFiles}
-                    />
+          <div className='fixed z-20 bottom-8 left-1/2 transform -translate-x-1/2 pc:ml-[122px] tablet:ml-[96px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-4'>
+
+            <div className='relative flex flex-col p-2 pl-4 pr-2 bg-[#1a1d24]/80 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-[0_10px_50px_rgba(0,0,0,0.5)] transition-all'>
+
+              <style>{`
+                /* Borderless Canvas Text Area */
+                .textarea-canvas {
+                   background: transparent !important;
+                   border: none !important;
+                   box-shadow: none !important;
+                   scrollbar-width: none;
+                }
+                .textarea-canvas::-webkit-scrollbar {
+                   display: none;
+                }
+                .textarea-canvas:focus {
+                   outline: none !important;
+                   box-shadow: none !important;
+                }
+              `}</style>
+
+              {/* Top Row: File Lists */}
+              <div className="w-full flex flex-col uploader-zone">
+                <div className="flex items-center gap-1 pt-1">
+                  {visionConfig?.enabled && (
+                    <ChatImageUploader settings={visionConfig} onUpload={onUpload} disabled={files.length >= visionConfig.number_limits} />
+                  )}
+                  {fileConfig?.enabled && (
+                    <FileUploaderInAttachmentWrapper fileConfig={fileConfig} value={attachmentFiles} onChange={setAttachmentFiles} />
+                  )}
+                </div>
+
+                {/* Dify's ImageList */}
+                {files.length > 0 && (
+                  <div className='mt-2'>
+                    <ImageList list={files} onRemove={onRemove} onReUpload={onReUpload} onImageLinkLoadSuccess={onImageLinkLoadSuccess} onImageLinkLoadError={onImageLinkLoadError} />
                   </div>
-                )
-              }
-              <Textarea
-                className={`
-                  block w-full px-2 pr-[118px] py-[7px] leading-5 max-h-none text-base text-gray-700 outline-none appearance-none resize-none
-                  ${visionConfig?.enabled && 'pl-12'}
-                `}
-                value={query}
-                onChange={handleContentChange}
-                onKeyUp={handleKeyUp}
-                onKeyDown={handleKeyDown}
-                autoSize
-              />
-              <div className="absolute bottom-2 right-6 flex items-center h-8">
-                <div className={`${s.count} mr-3 h-5 leading-5 text-sm bg-gray-50 text-gray-500 px-2 rounded`}>{query.trim().length}</div>
-                <Tooltip
-                  selector='send-tip'
-                  htmlContent={
-                    <div>
-                      <div>{t('common.operation.send')} Enter</div>
-                      <div>{t('common.operation.lineBreak')} Shift Enter</div>
-                    </div>
-                  }
-                >
-                  <div className={`${s.sendBtn} w-8 h-8 cursor-pointer rounded-md`} onClick={handleSend}></div>
-                </Tooltip>
+                )}
               </div>
+
+              {/* Bottom Row: Seamless Text Area & Send Button */}
+              <div className="flex items-end gap-2 mt-1">
+                <Textarea
+                  className='textarea-canvas flex-grow block w-full py-2 text-[15px] leading-relaxed max-h-[150px] overflow-y-auto text-gray-100 placeholder-gray-500 resize-none'
+                  placeholder="Zadejte svůj požadavek..."
+                  value={query}
+                  onChange={handleContentChange}
+                  onKeyUp={handleKeyUp}
+                  onKeyDown={handleKeyDown}
+                  autoSize
+                />
+
+                <div className="pb-1 pr-1 flex items-center shrink-0">
+                  <Tooltip selector='send-tip' htmlContent={<div className="text-xs"><div>Odeslat: <span className="font-bold text-[#FFD60A]">Enter</span></div></div>}>
+                    <div className={`w-10 h-10 flex items-center justify-center cursor-pointer rounded-full bg-[#FFD60A] hover:bg-[#e5c009] text-black shadow-lg transition-transform transform hover:scale-105 ${!query.trim() && files.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={handleSend}>
+                      {/* Custom Paper Airplane Icon */}
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '-2px', marginTop: '1px' }}>
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                    </div>
+                  </Tooltip>
+                </div>
+              </div>
+
             </div>
           </div>
         )
