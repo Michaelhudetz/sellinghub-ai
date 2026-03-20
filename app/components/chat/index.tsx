@@ -14,7 +14,6 @@ import Toast from '@/app/components/base/toast'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
-import FileUploaderInAttachmentWrapper from '@/app/components/base/file-uploader-in-attachment'
 import type { FileEntity, FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { getProcessedFiles } from '@/app/components/base/file-uploader-in-attachment/utils'
 
@@ -77,6 +76,7 @@ const Chat: FC<IChatProps> = ({
       queryRef.current = ''
     }
   }, [controlClearQuery])
+
   const {
     files,
     onUpload,
@@ -127,6 +127,48 @@ const Chat: FC<IChatProps> = ({
       queryRef.current = result
       e.preventDefault()
     }
+  }
+
+  // --- NEW: COPY/PASTE & DRAG/DROP HIJACKERS ---
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items
+    if (!items) { return }
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        e.preventDefault() // Stop browser from just pasting text/filename
+        const file = items[i].getAsFile()
+        if (file && visionConfig?.enabled) {
+          // Check limits before uploading
+          if (files.length < (visionConfig.number_limits || 3)) {
+            onUpload(file)
+          } else {
+            logError('Dosažen maximální počet obrázků.')
+          }
+        }
+        break // Only handle one image per paste to prevent spam
+      }
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    e.preventDefault()
+    const droppedFiles = e.dataTransfer?.files
+    if (!droppedFiles) { return }
+
+    if (droppedFiles.length > 0 && droppedFiles[0].type.indexOf('image') !== -1) {
+      if (visionConfig?.enabled) {
+        if (files.length < (visionConfig.number_limits || 3)) {
+          onUpload(droppedFiles[0])
+        } else {
+          logError('Dosažen maximální počet obrázků.')
+        }
+      }
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLTextAreaElement>) => {
+    e.preventDefault() // Required to allow drop event to fire
   }
 
   const suggestionClick = (suggestion: string) => {
@@ -190,15 +232,22 @@ const Chat: FC<IChatProps> = ({
               {/* Top Row: File Lists */}
               <div className="w-full flex flex-col uploader-zone">
                 <div className="flex items-center gap-1 pt-1">
-                  {visionConfig?.enabled && (
-                    <ChatImageUploader settings={visionConfig} onUpload={onUpload} disabled={files.length >= visionConfig.number_limits} />
-                  )}
-                  {fileConfig?.enabled && (
-                    <FileUploaderInAttachmentWrapper fileConfig={fileConfig} value={attachmentFiles} onChange={setAttachmentFiles} />
+                  {/* Force the IMAGE envelope machinery to run, with bulletproof settings */}
+                  {(visionConfig?.enabled || fileConfig?.enabled) && (
+                    <ChatImageUploader
+                      settings={{
+                        enabled: true,
+                        number_limits: visionConfig?.number_limits || 3,
+                        detail: 'high',
+                        transfer_methods: visionConfig?.transfer_methods || ['local_file'],
+                      } as any}
+                      onUpload={onUpload}
+                      disabled={files.length >= (visionConfig?.number_limits || 3)}
+                    />
                   )}
                 </div>
 
-                {/* Dify's ImageList */}
+                {/* Dify's ImageList - Kept intact so you can see the image preview before sending! */}
                 {files.length > 0 && (
                   <div className='mt-2'>
                     <ImageList list={files} onRemove={onRemove} onReUpload={onReUpload} onImageLinkLoadSuccess={onImageLinkLoadSuccess} onImageLinkLoadError={onImageLinkLoadError} />
@@ -215,6 +264,9 @@ const Chat: FC<IChatProps> = ({
                   onChange={handleContentChange}
                   onKeyUp={handleKeyUp}
                   onKeyDown={handleKeyDown}
+                  onPaste={handlePaste} /* <-- NEW MAGIC LINKED */
+                  onDrop={handleDrop} /* <-- NEW MAGIC LINKED */
+                  onDragOver={handleDragOver} /* <-- NEW MAGIC LINKED */
                   autoSize
                 />
 
