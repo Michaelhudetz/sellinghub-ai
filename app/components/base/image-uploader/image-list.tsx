@@ -40,9 +40,9 @@ const ImageList: FC<ImageListProps> = ({
   return (
     <div className='flex flex-wrap'>
       {
-        list.map(item => (
+        list.map((item, index) => (
           <div
-            key={item._id}
+            key={item._id || `temp-image-${index}`}
             className='group relative mr-1 border-[0.5px] border-black/5 rounded-lg'
           >
             {

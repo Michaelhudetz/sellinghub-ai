@@ -101,7 +101,6 @@ const Chat: FC<IChatProps> = ({
     const combinedFiles: VisionFile[] = [...imageFiles, ...docAndOtherFiles]
     onSend(queryRef.current, combinedFiles)
 
-    // Original stable clearing logic
     if (!files.find(item => item.type === TransferMethod.local_file && !item.fileId)) {
       if (files.length) { onClear() }
       if (!isResponding) {
@@ -129,7 +128,7 @@ const Chat: FC<IChatProps> = ({
     }
   }
 
-  // --- THE DOM TRICK: COPY/PASTE & DRAG/DROP ---
+  // --- RESTORED DOM TRICK ---
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = e.clipboardData?.items
     if (!items) { return }
@@ -141,20 +140,16 @@ const Chat: FC<IChatProps> = ({
 
         if (rawFile && (visionConfig?.enabled || fileConfig?.enabled)) {
           if (files.length < (visionConfig?.number_limits || 3)) {
-            // THE TRICK: Find Dify's native hidden file input
             const fileInput = document.querySelector('.uploader-zone input[type="file"]') as HTMLInputElement
 
             if (fileInput) {
-              // Create a fake file drop and shove the clipboard file inside it
               const dataTransfer = new DataTransfer()
               dataTransfer.items.add(rawFile)
               fileInput.files = dataTransfer.files
 
-              // Tell React the "user" just selected a file
               fileInput.dispatchEvent(new Event('change', { bubbles: true }))
             } else {
-              // Fallback just in case the DOM hasn't rendered
-              onUpload(rawFile)
+              onUpload(rawFile as any)
             }
           } else {
             logError('Dosažen maximální počet obrázků.')
@@ -175,15 +170,16 @@ const Chat: FC<IChatProps> = ({
         const rawFile = droppedFiles[0]
 
         if (files.length < (visionConfig?.number_limits || 3)) {
-          // THE TRICK FOR DRAG/DROP
           const fileInput = document.querySelector('.uploader-zone input[type="file"]') as HTMLInputElement
+
           if (fileInput) {
             const dataTransfer = new DataTransfer()
             dataTransfer.items.add(rawFile)
             fileInput.files = dataTransfer.files
+
             fileInput.dispatchEvent(new Event('change', { bubbles: true }))
           } else {
-            onUpload(rawFile)
+            onUpload(rawFile as any)
           }
         } else {
           logError('Dosažen maximální počet obrázků.')
@@ -193,7 +189,7 @@ const Chat: FC<IChatProps> = ({
   }
 
   const handleDragOver = (e: React.DragEvent<HTMLTextAreaElement>) => {
-    e.preventDefault() // Required to allow drop event to fire
+    e.preventDefault()
   }
 
   const suggestionClick = (suggestion: string) => {
@@ -204,7 +200,6 @@ const Chat: FC<IChatProps> = ({
 
   return (
     <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full pb-32')}>
-      {/* Chat List */}
       <div className="h-full space-y-[30px]">
         {chatList.map((item) => {
           if (item.isAnswer) {
@@ -230,7 +225,6 @@ const Chat: FC<IChatProps> = ({
         })}
       </div>
 
-      {/* --- PREMIUM GEMINI-STYLE CANVAS --- */}
       {
         !isHideSendInput && (
           <div className='fixed z-20 bottom-8 left-1/2 transform -translate-x-1/2 pc:ml-[122px] tablet:ml-[96px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-4'>
@@ -238,7 +232,6 @@ const Chat: FC<IChatProps> = ({
             <div className='relative flex flex-col p-2 pl-4 pr-2 bg-[#1a1d24]/80 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-[0_10px_50px_rgba(0,0,0,0.5)] transition-all'>
 
               <style>{`
-                /* Borderless Canvas Text Area */
                 .textarea-canvas {
                    background: transparent !important;
                    border: none !important;
@@ -254,17 +247,16 @@ const Chat: FC<IChatProps> = ({
                 }
               `}</style>
 
-              {/* Top Row: File Lists */}
               <div className="w-full flex flex-col uploader-zone">
                 <div className="flex items-center gap-1 pt-1">
-                  {/* Force the IMAGE envelope machinery to run, with bulletproof settings */}
                   {(visionConfig?.enabled || fileConfig?.enabled) && (
                     <ChatImageUploader
                       settings={{
                         enabled: true,
                         number_limits: visionConfig?.number_limits || 3,
                         detail: 'high',
-                        transfer_methods: visionConfig?.transfer_methods || ['local_file'],
+                        // STRIPPED OUT LINK OPTION HERE
+                        transfer_methods: ['local_file'],
                       } as any}
                       onUpload={onUpload}
                       disabled={files.length >= (visionConfig?.number_limits || 3)}
@@ -272,7 +264,6 @@ const Chat: FC<IChatProps> = ({
                   )}
                 </div>
 
-                {/* Dify's ImageList - Kept intact so you can see the image preview before sending! */}
                 {files.length > 0 && (
                   <div className='mt-2'>
                     <ImageList list={files} onRemove={onRemove} onReUpload={onReUpload} onImageLinkLoadSuccess={onImageLinkLoadSuccess} onImageLinkLoadError={onImageLinkLoadError} />
@@ -280,7 +271,6 @@ const Chat: FC<IChatProps> = ({
                 )}
               </div>
 
-              {/* Bottom Row: Seamless Text Area & Send Button */}
               <div className="flex items-end gap-2 mt-1">
                 <Textarea
                   className='textarea-canvas flex-grow block w-full py-2 text-[15px] leading-relaxed max-h-[150px] overflow-y-auto text-gray-100 placeholder-gray-500 resize-none'
@@ -289,16 +279,15 @@ const Chat: FC<IChatProps> = ({
                   onChange={handleContentChange}
                   onKeyUp={handleKeyUp}
                   onKeyDown={handleKeyDown}
-                  onPaste={handlePaste} /* <-- NEW MAGIC LINKED */
-                  onDrop={handleDrop} /* <-- NEW MAGIC LINKED */
-                  onDragOver={handleDragOver} /* <-- NEW MAGIC LINKED */
+                  onPaste={handlePaste}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
                   autoSize
                 />
 
                 <div className="pb-1 pr-1 flex items-center shrink-0">
                   <Tooltip selector='send-tip' htmlContent={<div className="text-xs"><div>Odeslat: <span className="font-bold text-[#FFD60A]">Enter</span></div></div>}>
                     <div className={`w-10 h-10 flex items-center justify-center cursor-pointer rounded-full bg-[#FFD60A] hover:bg-[#e5c009] text-black shadow-lg transition-transform transform hover:scale-105 ${!query.trim() && files.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={handleSend}>
-                      {/* Custom Paper Airplane Icon */}
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '-2px', marginTop: '1px' }}>
                         <line x1="22" y1="2" x2="11" y2="13"></line>
                         <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>

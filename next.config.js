@@ -18,13 +18,13 @@ const nextConfig = {
   },
   output: 'standalone',
 
-  // --- LOCALHOST PROXY REWRITE FOR IMAGES ---
+  // --- HETZNER PROXY REWRITE FOR IMAGES ---
   async rewrites() {
     return [
       {
         source: '/files/:path*',
-        // Pointing strictly to your local Dify backend container
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5001/v1'}/files/:path*`,
+        // Hardcoded to your live German server to prevent Next.js confusion
+        destination: 'http://91.98.174.46/v1/files/:path*',
       },
     ]
   },
