@@ -125,7 +125,7 @@ const Welcome: FC<IWelcomeProps> = ({
   const renderInputs = () => {
     return (
       <div className='space-y-4 w-full max-w-2xl mx-auto'>
-        {promptConfig.prompt_variables.map(item => (
+        {promptConfig.prompt_variables.filter(item => !item.key.startsWith('user_')).map(item => (
           <div className='flex flex-col items-start w-full space-y-1.5' key={item.key}>
             <label className={'text-xs font-semibold text-gray-400 tracking-wider uppercase ml-1'}>
               {item.name} {!item.required && <span className="text-gray-600 lowercase">(Volitelné)</span>}
@@ -265,9 +265,9 @@ const Welcome: FC<IWelcomeProps> = ({
             <h2 className="text-xl font-semibold text-white mb-2">
               Upřesněte detaily <span className="text-gray-500 font-normal text-lg">(Volitelné)</span>
             </h2>
-            <div className="h-6 flex items-center justify-center w-full mt-2">
-              <span className="text-[#FFD60A] mr-2">💡</span>
-              <div className={`typewriter-text text-sm text-gray-400 ${isTyping ? 'typing' : 'erasing'}`}>
+            <div className="h-6 flex items-center justify-center w-full mt-2 overflow-hidden">
+              <span className="text-[#FFD60A] mr-2 shrink-0">💡</span>
+              <div className={`typewriter-text text-sm text-gray-400 min-w-0 ${isTyping ? 'typing' : 'erasing'}`}>
                 {proTips[tipIndex]}
               </div>
             </div>

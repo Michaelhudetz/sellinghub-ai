@@ -6,14 +6,9 @@ export async function POST(request: NextRequest, { params }: {
   params: Promise<{ conversationId: string }>
 }) {
   const body = await request.json()
-  const {
-    auto_generate,
-    name,
-  } = body
+  const { auto_generate, name } = body
   const { conversationId } = await params
-  const { user } = getInfo(request)
-
-  // auto generate name
+  const { user } = await getInfo(request)
   const { data } = await client.renameConversation(conversationId, name, user, auto_generate)
   return NextResponse.json(data)
 }

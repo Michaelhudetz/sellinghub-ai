@@ -18,7 +18,7 @@ import Thought from '../thought'
 function OperationBtn({ innerContent, onClick, className }: { innerContent: React.ReactNode, onClick?: () => void, className?: string }) {
   return (
     <div
-      className={`relative box-border flex items-center justify-center h-8 w-8 p-1 rounded-lg bg-[#1a1d24]/60 backdrop-blur-md border border-white/5 cursor-pointer text-gray-400 hover:text-[#FFD60A] hover:border-[#FFD60A]/30 transition-all ${className ?? ''}`}
+      className={`relative box-border flex items-center justify-center h-11 w-11 p-2 rounded-lg bg-[#1a1d24]/60 backdrop-blur-md border border-white/5 cursor-pointer text-gray-400 hover:text-[#FFD60A] hover:border-[#FFD60A]/30 transition-all ${className ?? ''}`}
       onClick={onClick && onClick}
     >
       {innerContent}
@@ -67,7 +67,7 @@ const Answer: FC<IAnswerProps> = ({
     return (
       <Tooltip selector={`user-feedback-${randomString(16)}`} content={isLike ? 'Zrušit hodnocení' : 'Zrušit hodnocení'}>
         <div
-          className={`relative box-border flex items-center justify-center h-8 w-8 p-1 rounded-lg border cursor-pointer transition-all ${ratingColor}`}
+          className={`relative box-border flex items-center justify-center h-11 w-11 p-2 rounded-lg border cursor-pointer transition-all ${ratingColor}`}
           onClick={async () => { await onFeedback?.(id, { rating: null }) }}
         >
           <div className={'rounded-lg h-6 w-6 flex items-center justify-center'}>
@@ -83,7 +83,7 @@ const Answer: FC<IAnswerProps> = ({
       return feedback?.rating
         ? null
         : (
-          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="flex gap-2 opacity-60 pc:opacity-0 pc:group-hover:opacity-100 transition-opacity duration-300">
             <Tooltip selector={`user-feedback-${randomString(16)}`} content={t('common.operation.like') as string}>
               {OperationBtn({ innerContent: <IconWrapper><RatingIcon isLike={true} /></IconWrapper>, onClick: () => onFeedback?.(id, { rating: 'like' }) })}
             </Tooltip>
@@ -139,7 +139,7 @@ const Answer: FC<IAnswerProps> = ({
         <div className="ml-4 max-w-[calc(100%-3rem)] flex-grow">
           <div className="relative text-[15px] text-gray-200 font-light tracking-wide leading-relaxed">
 
-            <div className={`py-1 ${workflowProcess && 'min-w-[480px]'}`}>
+            <div className="py-1 w-full min-w-0">
               {workflowProcess && <WorkflowProcess data={workflowProcess} hideInfo />}
 
               {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))

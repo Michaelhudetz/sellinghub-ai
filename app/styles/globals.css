@@ -142,3 +142,10 @@ select {
   color: #000000 !important;
   font-weight: 600 !important;
 }
+
+/* iOS safe-area bottom padding for fixed input bar.
+   On iPhones: max(2rem, ~34px home indicator) keeps the input above the gesture bar.
+   On desktop/Android: max(2rem, 0px) = 2rem, same as the old bottom-8. */
+.pb-input-safe {
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
+}

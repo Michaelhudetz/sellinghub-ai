@@ -199,7 +199,7 @@ const Chat: FC<IChatProps> = ({
   }
 
   return (
-    <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full pb-32')}>
+    <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full')}>
       <div className="h-full space-y-[30px]">
         {chatList.map((item) => {
           if (item.isAnswer) {
@@ -227,7 +227,7 @@ const Chat: FC<IChatProps> = ({
 
       {
         !isHideSendInput && (
-          <div className='fixed z-20 bottom-8 left-1/2 transform -translate-x-1/2 pc:ml-[122px] tablet:ml-[96px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-4'>
+          <div className='fixed z-20 bottom-0 left-1/2 transform -translate-x-1/2 pc:ml-[122px] tablet:ml-[96px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-4 pb-input-safe'>
 
             <div className='relative flex flex-col p-2 pl-4 pr-2 bg-[#1a1d24]/80 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-[0_10px_50px_rgba(0,0,0,0.5)] transition-all'>
 

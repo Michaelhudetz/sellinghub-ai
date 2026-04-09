@@ -41,7 +41,7 @@ const Header: FC<IHeaderProps> = ({
           alt="Sellinghub AI Logo"
           className="h-5 w-auto opacity-90"
         />
-        <div className="text-[15px] text-gray-200 font-medium tracking-wide">
+        <div className="text-[11px] mobile:text-[11px] tablet:text-[15px] text-gray-200 font-medium tracking-wide text-center">
           AI dopisář
         </div>
       </div>

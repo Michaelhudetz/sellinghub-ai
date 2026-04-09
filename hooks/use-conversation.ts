@@ -10,19 +10,21 @@ function useConversation() {
   const [conversationList, setConversationList] = useState<ConversationItem[]>([])
   const [currConversationId, doSetCurrConversationId, getCurrConversationId] = useGetState<string>('-1')
   // when set conversation id, we do not have set appId
-  const setCurrConversationId = (id: string, appId: string, isSetToLocalStroge = true, newConversationName = '') => {
+  // key is `appId:userId` so different users on the same browser do not share conversation state
+  const setCurrConversationId = (id: string, appId: string, isSetToLocalStroge = true, userId = '') => {
     doSetCurrConversationId(id)
     if (isSetToLocalStroge && id !== '-1') {
-      // conversationIdInfo: {[appId1]: conversationId1, [appId2]: conversationId2}
+      const storageKey = userId ? `${appId}:${userId}` : appId
       const conversationIdInfo = globalThis.localStorage?.getItem(storageConversationIdKey) ? JSON.parse(globalThis.localStorage?.getItem(storageConversationIdKey) || '') : {}
-      conversationIdInfo[appId] = id
+      conversationIdInfo[storageKey] = id
       globalThis.localStorage?.setItem(storageConversationIdKey, JSON.stringify(conversationIdInfo))
     }
   }
 
-  const getConversationIdFromStorage = (appId: string) => {
+  const getConversationIdFromStorage = (appId: string, userId = '') => {
+    const storageKey = userId ? `${appId}:${userId}` : appId
     const conversationIdInfo = globalThis.localStorage?.getItem(storageConversationIdKey) ? JSON.parse(globalThis.localStorage?.getItem(storageConversationIdKey) || '') : {}
-    const id = conversationIdInfo[appId]
+    const id = conversationIdInfo[storageKey]
     return id
   }
 
